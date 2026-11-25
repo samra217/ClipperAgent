@@ -82,6 +82,20 @@ def details(video_id: str) -> dict | None:
     with yt_dlp.YoutubeDL(opts) as ydl:
         return ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
 
+def download(video_id: str, out_dir: Path) -> dict | None:
+    opts = {
+        "format": "bestaudio/best",
+        "paths": {"home": str(out_dir / "audio")},
+        "outtmpl": "%(id)s.%(ext)s",
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "wav",
+            "preferredquality": "192",   # kbps
+        }],
+    }
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        return ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=True)
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -143,6 +157,8 @@ def main() -> None:
 
                 per_channel[channel] += 1
                 (out / "heatmaps" / f"{vid}.json").write_text(json.dumps(heatmap))
+                time.sleep(args.sleep)
+                download(vid, out)
                 row = {
                     "id": vid,
                     "url": f"https://www.youtube.com/watch?v={vid}",
