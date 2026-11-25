@@ -1,6 +1,7 @@
 import numpy as np
 import librosa
 import os
+import json
 
 
 import numpy as np
@@ -22,6 +23,13 @@ def fetch_audio(file_name):
 def fetch_RMS(file_name):
     return np.load("data_insamling/RMS/"+file_name+"_rms.npy")
 
+def fetch_heatmap(file_name):
+    with open("data_insamling/heatmaps/"+file_name+".json", "r") as file:
+        data_json = json.load(file)
+        data = []
+        for dict in data_json:
+            data.append(dict["value"])
+        return np.array(data)
 
 
 def pre_process_data(file_name):
@@ -30,6 +38,7 @@ def pre_process_data(file_name):
     rms = fetch_RMS(file_name)
 
     return mfcc,rms
+
 
 
 
@@ -52,7 +61,17 @@ def build_input() -> np.ndarray:
         
     return np.array(xs)
 
+def build_output() -> np.ndarray:
+    y = []
+    for file_name in os.listdir("data_insamling/heatmaps/"):
+        file_name = file_name[:-5]
+        y.append(fetch_heatmap(file_name))
+    return np.array(y)
+
 if __name__ == "__main__":
     x = build_input()
     print(x.shape)
-    np.save("training_data.npy", "./data_insamling/")
+    np.save("training_data.npy", x)
+    y = build_output()
+    print(y.shape)
+    np.save("y.npy",y)
