@@ -105,7 +105,7 @@ def main() -> None:
     ap.add_argument("--max-min", type=float, default=240, help="största längd i minuter")
     ap.add_argument("--per-channel", type=int, default=3, help="max videor per kanal")
     ap.add_argument("--sleep", type=float, default=1.5, help="paus mellan anrop (s)")
-    ap.add_argument("--out", default=".", help="utdatamapp")
+    ap.add_argument("--out", default="data_insamling/", help="utdatamapp")
     args = ap.parse_args()
 
     out = Path(args.out)
