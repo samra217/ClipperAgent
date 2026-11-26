@@ -1,7 +1,16 @@
 
-import json
+import os
 from pathlib import Path
 
+# Add CUDA libraries to Windows DLL search paths
+cuda_libs = Path(__file__).resolve().parent / ".venv" / "cuda-libs"
+
+#Guard for running on mac
+if os.name == "nt" and cuda_libs.exists():
+    _DLL_DIRECTORY_HANDLE = os.add_dll_directory(str(cuda_libs))
+    os.environ["PATH"] = str(cuda_libs) + os.pathsep + os.environ["PATH"]
+
+import json
 import numpy as np
 from scipy.ndimage import uniform_filter1d
 
@@ -112,9 +121,6 @@ def main():
 
     wav_files = sorted(AUDIO.glob("*.wav"))
 
-    #test only on one file
-    wav_files = wav_files[:1]
-
     for wav in wav_files:
 
         vid = wav.stem
@@ -187,7 +193,7 @@ def main():
         print(f"Words: {len(words)}")
         print(f"Bin length: {info.duration / N_BINS:.3f} seconds")
         print(f"Smoothing window: {SMOOTH_SECONDS} seconds")
-        print(f"Feature shape: {X.shape}")
+        print(f"Feature shape: {X.T.shape}")
         print(f"Saved: {out_npz}")
 
     print("\nDone!")
